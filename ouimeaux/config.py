@@ -1,8 +1,6 @@
 from contextlib import contextmanager, closing
 import os
 import shelve
-import gevent
-from gevent.lock import RLock
 
 import yaml
 from ouimeaux.device import Device
@@ -81,17 +79,13 @@ class Cache(object):
     def devices(self):
         return self._shelf.setdefault('devices', {}).itervalues()
 
-
-_CACHE_LOCK = RLock()
-
 @contextmanager
 def get_cache():
     ensure_directory(in_home('.wemo'))
     filename = in_home('.wemo', 'cache')
-    _CACHE_LOCK.acquire(blocking=True)
     try:
         with closing(shelve.open(filename, writeback=True)) as cache:
             yield Cache(cache)
     finally:
-        _CACHE_LOCK.release()
+        pass
 
