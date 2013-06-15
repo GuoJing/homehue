@@ -40,4 +40,3 @@ nosetests.xml
 *.swo
 *.un~
 local_config.py
-xsd
