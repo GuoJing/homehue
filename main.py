@@ -7,15 +7,11 @@ from ouimeaux.subscribe import SubscriptionRegistry
 
 registry = SubscriptionRegistry()
 
-def on_switch(switch):
-    pass
-
-def on_motion(motion):
-    pass
-
-env = Environment(on_switch, on_motion)
+env = Environment(with_cache=False)
 
 env.start()
+
+env.discover(3)
 
 ms = env.list_motions()
 ss = env.list_switches()

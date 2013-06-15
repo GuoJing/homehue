@@ -117,7 +117,10 @@ class Environment(object):
         else:
             return
         device = klass(headers['location'])
-        self._process_device(device)
+        try:
+            self._process_device(device)
+        except:
+            pass
 
     def _process_device(self, device, cache=None):
         if isinstance(device, Switch):
