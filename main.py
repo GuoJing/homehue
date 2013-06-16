@@ -25,18 +25,33 @@ h = Hue()
 ls = h.lights
 print ls
 
+sunset = dict(sofa=[0.5543, 0.4098],
+              room=[0.5452, 0.4164],
+              bed=[0.5848, 0.3872])
+
 def updated():
     t = time.localtime()
     n = datetime.now()
     print '*' * 100
     print n.strftime('%Y-%m-%d %H:%M:%S')
     print time.strftime("%A", t)
-    if int(n.strftime('%H')) >= 18 or int(n.strftime('%H')) < 7:
+    if True:
+    #if int(n.strftime('%H')) >= 19 or int(n.strftime('%H')) < 7:
         for l in ls:
-            l.on(0)
+            if not l.state.on:
+                xy = sunset.get(l.name.lower())
+                print xy
+                if not xy:
+                    print 'x' * 100
+                    print 'xy is not configured'
+                    xy = [0.5543, 0.4098]
+                l.on()
+                d = dict(xy=xy, bri=255)
+                l.set_state(d)
     else:
-        for l in ls:
-            l.off(0)
+        pass
+        #for l in ls:
+        #    l.off()
 
 m.on_device_updated_on = updated
 
