@@ -35,8 +35,7 @@ def updated():
     print '*' * 100
     print n.strftime('%Y-%m-%d %H:%M:%S')
     print time.strftime("%A", t)
-    if True:
-    #if int(n.strftime('%H')) >= 19 or int(n.strftime('%H')) < 7:
+    if int(n.strftime('%H')) >= 18 or int(n.strftime('%H')) < 7:
         for l in ls:
             if not l.state.on:
                 xy = sunset.get(l.name.lower())
