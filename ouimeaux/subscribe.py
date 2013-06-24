@@ -37,21 +37,39 @@ class SubscriptionRegistry(object):
                 "NT": "upnp:event"
             })
 
-        response = requests.request(method="SUBSCRIBE", url=url,
+        try:
+            response = requests.request(method="SUBSCRIBE", url=url,
                                     headers=headers)
-
-        timeout = int(response.headers['timeout'].replace('Second-', ''))
-        sid = response.headers['sid']
-        gevent.spawn_later(timeout, self._resubscribe, url, sid)
+            timeout = 50
+            try:
+                timeout = int(response.headers['timeout'].replace('Second-', ''))
+            except:
+                log.info("Error parse timeout")
+                print "Error parse timeout"
+                timeout = 50
+            try:
+                sid = response.headers['sid']
+            except:
+                log.info("Error parse sid")
+                print "Error parse sid"
+            gevent.spawn_later(timeout, self._resubscribe, url, sid)
+        except:
+            log.info("Error parse timeout")
+            gevent.spawn_later(10, self._resubscribe, url, sid)
 
     def _handle(self, environ, start_response):
-        device = self._devices[environ['REMOTE_ADDR']]
         start_response('200 OK', [('Content-Type', 'text/html')])
-        doc = cElementTree.parse(environ['wsgi.input'])
-        for propnode in doc.findall('./{0}property'.format(NS)):
-            for property_ in propnode.getchildren():
-                self._event(device, property_.tag, property_.text)
-        yield '<html><body><h1>200 OK</h1></body></html>'
+        try:
+            if environ['REMOTE_ADDR'] == '10.0.1.85':
+                environ['REMOTE_ADDR'] = '10.0.1.5'
+            device = self._devices[environ['REMOTE_ADDR']]
+            doc = cElementTree.parse(environ['wsgi.input'])
+            for propnode in doc.findall('./{0}property'.format(NS)):
+                for property_ in propnode.getchildren():
+                    self._event(device, property_.tag, property_.text)
+        except Exception, e:
+            pass
+        yield '200'
 
     def _event(self, device, type_, value):
         for t, callback in self._callbacks.get(device, ()):
